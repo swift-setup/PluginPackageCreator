@@ -1,0 +1,25 @@
+import PluginInterface
+import SwiftUI
+
+struct {{ package.name }}: PluginInterfaceProtocol {
+    var manifest: ProjectManifest = ProjectManifest(displayName: "{{ package.displayName }}", bundleIdentifier: "{{ package.bundleIdentifier }}", author: "{{ package.author }}", shortDescription: "{{ package.shortDescription }}", repository: "{{ package.repository }}", keywords: [])
+        
+    var id = UUID()
+    
+    var view: some View {
+       Text("Hello world")
+    }
+}
+
+
+@_cdecl("createPlugin")
+public func createPlugin() -> UnsafeMutableRawPointer {
+    return Unmanaged.passRetained({{ package.name }}Builder()).toOpaque()
+}
+
+public final class {{ package.name }}Builder: PluginBuilder {
+    public override func build(fileUtils: FileUtilsProtocol, nsPanelUtils: NSPanelUtilsProtocol, storeUtils: StoreUtilsProtocol) -> any PluginInterfaceProtocol {
+        {{ package.name }}()
+    }
+}
+
