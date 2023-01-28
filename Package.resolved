@@ -35,6 +35,24 @@
         "revision" : "4f222ac85d673f35df29962fc4c36ccfdaf9da5b",
         "version" : "0.15.1"
       }
+    },
+    {
+      "identity" : "swiftuijsonschemaform",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swift-setup/SwiftUIJsonSchemaForm",
+      "state" : {
+        "branch" : "main",
+        "revision" : "5c2e790002b611850a953c0f3cdd6f00aea8d3e2"
+      }
+    },
+    {
+      "identity" : "swiftyjson",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SwiftyJSON/SwiftyJSON.git",
+      "state" : {
+        "revision" : "b3dcd7dbd0d488e1a7077cb33b00f2083e382f07",
+        "version" : "5.0.1"
+      }
     }
   ],
   "version" : 2

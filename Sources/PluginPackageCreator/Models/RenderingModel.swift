@@ -8,38 +8,107 @@
 import Foundation
 import PluginInterface
 import Stencil
+import SwiftyJSON
 
 class RenderingModel: ObservableObject {
-    @Published var packageInfo = PackageInfo(displayName: "", bundleIdentifier: "", author: "", shortDescription: "", repository: "", keywords: [], name: "")
+    @Published var packageInfo: JSON = [:]
     @Published var isGenerating = false
+    @Published var packageRepos: [PackageRepo] = []
+    @Published var selectedRepo: PackageRepo = .emptyRepo
+    @Published var package: Package?
+    @Published var schema: JSON?
+    
+    @Published var isLoading = false
+    @Published var downloadedTemplates: [Template] = []
 
     var fileUtils: FileUtilsProtocol!
     var nsPanel: NSPanelUtilsProtocol!
-    var templates: [Template] {
-        let context: [String: PackageInfo] = [
-            "package": packageInfo,
-        ]
-        let packageSwiftTemplate = Bundle.module.url(forResource: "Package.swift", withExtension: "j2")
-        let mainPackageTemplate = Bundle.module.url(forResource: "MainPackage.swift", withExtension: "j2")
-        let gitIgnoreTemplate = Bundle.module.url(forResource: "GitIgnore", withExtension: "j2")
-        let readmeTemplate = Bundle.module.url(forResource: "Readme.md", withExtension: "j2")
-
-        let templates: [Template] = [
-            Template(templateURL: packageSwiftTemplate!, outputFilePath: "Package.swift", packageInfo: context),
-            Template(templateURL: mainPackageTemplate!, outputFilePath: "Sources/\(packageInfo.name.capitalized)/\(packageInfo.name.capitalized).swift", packageInfo: context),
-            Template(templateURL: gitIgnoreTemplate!, outputFilePath: ".gitignore", packageInfo: context),
-            Template(templateURL: readmeTemplate!, outputFilePath: "README.md", packageInfo: context),
-        ]
-        return templates
-    }
+    let packageIndexURL = URL(string: "https://scripts.swiftup.net")!
+    
 
     func setup(fileUtils: FileUtilsProtocol, nsPanel: NSPanelUtilsProtocol) {
         self.fileUtils = fileUtils
         self.nsPanel = nsPanel
     }
+    
+    @MainActor
+    /**
+     The fetchPackageRepo function is used to retrieve package repositories from a remote server.
+     It sets the isLoading property to true before making the request, and then to false when the request is finished or an error occurs.
+     If an error occurs, the function displays an alert with the error's localized description. The package repositories are decoded from the received data and stored in the packageRepos property.
+     */
+    func fetchPackageRepo() async {
+        do {
+            isLoading = true
+            let url = packageIndexURL.appending(path: "index.json")
+            let (data, _) =  try await URLSession.shared.data(from: url)
+            let repos = try JSONDecoder().decode([PackageRepo].self, from: data)
+            self.packageRepos = repos
+            isLoading = false
+        } catch {
+            isLoading = false
+            nsPanel.alert(title: "Cannot fetch package repo", subtitle: error.localizedDescription, okButtonText: "OK", alertStyle: .critical)
+        }
+    }
+    
+    
+    @MainActor
+    /**
+     The fetchPackage function retrieves detailed information about a specific package from a remote server. It first checks if a repository has been selected and if not, it displays an alert to the user. If a repository is selected, the function sets the isLoading property to true before making the request and to false when the request is finished or an error occurs. If an error occurs, the function displays an alert with the error's localized description. The package information is decoded from the received data and stored in the package property.
+     */
+    func fetchPackage() async {
+        if selectedRepo == .emptyRepo {
+            nsPanel.alert(title: "No selected repo", subtitle: "", okButtonText: "OK", alertStyle: .critical)
+            return
+        }
+        
+        do {
+            isLoading = true
+            let (data, _) =  try await URLSession.shared.data(from: packageIndexURL.appending(path: selectedRepo.path).appending(path: "index.json"))
+            let package = try JSONDecoder().decode(Package.self, from: data)
+            if let schemaPath = package.schema {
+                let (schemaData, _) =  try await URLSession.shared.data(from: packageIndexURL.appending(path: selectedRepo.path).appending(path: schemaPath))
+                schema = try JSON(data: schemaData)
+            }
+            
+            self.package = package
+            isLoading = false
+        } catch {
+            isLoading = false
+            nsPanel.alert(title: "Cannot fetch package detail", subtitle: error.localizedDescription, okButtonText: "OK", alertStyle: .critical)
+        }
+    }
+    
+    @MainActor
+    func renderOutputPath(template: Template) -> String? {
+        return template.getOutputPath(packageInfo:  packageInfo)
+    }
+    
 
     @MainActor
-    func render() throws {
+    /**
+     The render function is used to create a new project based on a selected package.
+     It first checks if a package has been selected and if not, it displays an alert to the user.
+     If a package is selected, it checks if there are any previous downloads and if there are, it prompts the user to confirm if they want to override the existing content.
+     If the user confirms, it clears the previous downloads. Then it prompts the user to confirm if they want to create the project now.
+     If the user confirms, it starts generating the templates for the package by using the "render" function of each template and passing packageInfo and baseURL as arguments.
+     For each template it generates, it appends it to the downloadedTemplates array and it writes the content to the output path that is generated by the function renderOutputPath. If there is an error in generating template to path, it will display an alert to the user.
+     It sets the isGenerating property to true before starting the process and to false when the process is finished or an error occurs. If an error occurs, it throws the error.
+     */
+    func render() async throws {
+        guard let package = package else {
+            nsPanel.alert(title: "No package found", subtitle: "", okButtonText: "OK", alertStyle: .critical)
+            return
+        }
+        
+        if !downloadedTemplates.isEmpty {
+            let confirmed = nsPanel.confirm(title: "Previous downloads existed", subtitle: "This will override existing contents", confirmButtonText: "Confirm", cancelButtonText: "Cancel", alertStyle: .informational)
+            if !confirmed {
+                return
+            }
+            downloadedTemplates = []
+        }
+        
         do {
             isGenerating = true
             let confirmed = nsPanel.confirm(title: "Create project now?", subtitle: "This will override any existing content", confirmButtonText: "Create!", cancelButtonText: "Cancel", alertStyle: .informational)
@@ -48,9 +117,14 @@ class RenderingModel: ObservableObject {
                 return
             }
 
-            for template in templates {
-                let content = try template.render()
-                try fileUtils.writeFile(at: template.outputFilePath, with: content)
+            for template in package.templates {
+                downloadedTemplates.append(template)
+                let content = try await template.render(packageInfo: packageInfo, baseURL: packageIndexURL.appending(path: selectedRepo.path))
+                guard let outputPath = renderOutputPath(template: template) else {
+                    nsPanel.alert(title: "Error in generating template to path", subtitle: "", okButtonText: "OK", alertStyle: .critical)
+                    continue
+                }
+                try fileUtils.writeFile(at: outputPath, with: content)
             }
             isGenerating = false
         } catch {

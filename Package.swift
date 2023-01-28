@@ -18,7 +18,9 @@ let package = Package(
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
         .package(url: "https://github.com/swift-setup/PluginInterface", .upToNextMajor(from: "1.0.0")),
-        .package(url: "https://github.com/stencilproject/Stencil", .upToNextMajor(from: "0.0.0"))
+        .package(url: "https://github.com/stencilproject/Stencil", .upToNextMajor(from: "0.0.0")),
+        .package(url: "https://github.com/SwiftyJSON/SwiftyJSON.git", .upToNextMajor(from: "5.0.0")),
+        .package(url: "https://github.com/swift-setup/SwiftUIJsonSchemaForm", branch: "main")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -27,10 +29,9 @@ let package = Package(
             name: "PluginPackageCreator",
             dependencies: [
                 .product(name: "PluginInterface", package: "PluginInterface"),
-                .product(name: "Stencil", package: "Stencil")
-            ],
-            resources: [
-                .process("Resources")
+                .product(name: "Stencil", package: "Stencil"),
+                .product(name: "SwiftyJSON", package: "SwiftyJSON"),
+                .product(name: "SwiftUIJsonSchemaForm", package: "SwiftUIJsonSchemaForm")
             ]
         ),
         .testTarget(
