@@ -119,7 +119,7 @@ class RenderingModel: ObservableObject {
 
             for template in package.templates {
                 downloadedTemplates.append(template)
-                let content = try await template.render(packageInfo: packageInfo, baseURL: packageIndexURL.appending(path: selectedRepo.path))
+                let content = try await render(template: template)
                 guard let outputPath = renderOutputPath(template: template) else {
                     nsPanel.alert(title: "Error in generating template to path", subtitle: "", okButtonText: "OK", alertStyle: .critical)
                     continue
@@ -131,5 +131,10 @@ class RenderingModel: ObservableObject {
             isGenerating = false
             throw error
         }
+    }
+    
+    func render(template: Template) async throws -> String {
+        let content = try await template.render(packageInfo: packageInfo, baseURL: packageIndexURL.appending(path: selectedRepo.path))
+        return content
     }
 }

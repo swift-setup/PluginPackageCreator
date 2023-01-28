@@ -20,7 +20,8 @@ let package = Package(
         .package(url: "https://github.com/swift-setup/PluginInterface", .upToNextMajor(from: "1.0.0")),
         .package(url: "https://github.com/stencilproject/Stencil", .upToNextMajor(from: "0.0.0")),
         .package(url: "https://github.com/SwiftyJSON/SwiftyJSON.git", .upToNextMajor(from: "5.0.0")),
-        .package(url: "https://github.com/swift-setup/SwiftUIJsonSchemaForm", branch: "main")
+        .package(url: "https://github.com/swift-setup/SwiftUIJsonSchemaForm", branch: "main"),
+        .package(url: "https://github.com/CodeEditApp/CodeEditTextView", .upToNextMajor(from: "0.0.0"))
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -31,7 +32,8 @@ let package = Package(
                 .product(name: "PluginInterface", package: "PluginInterface"),
                 .product(name: "Stencil", package: "Stencil"),
                 .product(name: "SwiftyJSON", package: "SwiftyJSON"),
-                .product(name: "SwiftUIJsonSchemaForm", package: "SwiftUIJsonSchemaForm")
+                .product(name: "SwiftUIJsonSchemaForm", package: "SwiftUIJsonSchemaForm"),
+                .product(name: "CodeEditTextView", package: "CodeEditTextView")
             ]
         ),
         .testTarget(
