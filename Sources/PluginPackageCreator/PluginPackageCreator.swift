@@ -18,6 +18,7 @@ struct PluginPackageCreator: PluginInterfaceProtocol {
     
     public var view: some View {
        CreationView(fileUtils: fileUtils, nsPanelUtils: nsPanelUtils)
+            .padding()
     }
 }
 
