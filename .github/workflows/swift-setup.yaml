@@ -20,6 +20,6 @@ jobs:
         run: python3 package.py --pattern="*.dylib" --folder=.build/release
       - name: Upload Swift Package
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+        if: ${{ github.event_name == 'release' }}
         with:
           files: "*.zip"

@@ -3,7 +3,7 @@ import SwiftUI
 import Stencil
 
 struct PluginPackageCreator: PluginInterfaceProtocol {
-    public var manifest: ProjectManifest = ProjectManifest(displayName: "Setup plugin", bundleIdentifier: "com.sirilee.PluginPackageCreator", author: "sirily11", shortDescription: "Will setup the required files for your plugin creation", repository: "https://github.com/swift-setup/SetupPlugin", keywords: ["creator", "swift-ui"])
+    public var manifest: ProjectManifest = ProjectManifest(displayName: "PluginPackageCreator", bundleIdentifier: "com.sirilee.PluginPackageCreator", author: "sirily11", shortDescription: "Setup using templates", repository: "https://github.com/swift-setup/PluginPackageCreator", keywords: ["creator", "swift-ui"])
     
     
     let fileUtils: FileUtilsProtocol
