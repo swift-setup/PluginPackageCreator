@@ -25,6 +25,12 @@ struct CreationView: View {
                         Text(repo.title).tag(repo)
                     }
                 }
+                
+                Button("Refresh repos") {
+                    Task {
+                        await model.fetchPackageRepo()
+                    }
+                }
             }
             HStack {
                 Text("Current workspace")
