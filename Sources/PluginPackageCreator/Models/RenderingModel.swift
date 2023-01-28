@@ -69,6 +69,8 @@ class RenderingModel: ObservableObject {
             if let schemaPath = package.schema {
                 let (schemaData, _) =  try await URLSession.shared.data(from: packageIndexURL.appending(path: selectedRepo.path).appending(path: schemaPath))
                 schema = try JSON(data: schemaData)
+            } else {
+                schema = nil
             }
             
             self.package = package
