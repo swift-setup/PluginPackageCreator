@@ -8,7 +8,6 @@
 import Foundation
 import Stencil
 import SwiftyJSON
-import CodeEditLanguages
 
 enum TemplateErrors: LocalizedError {
     case invalidTemplateContent
@@ -74,14 +73,5 @@ struct Template: Identifiable, Codable, Equatable {
         
         let renderedContent = try environment.renderTemplate(string: template, context: packageInfo.dictionaryValue)
         return renderedContent
-    }
-}
-
-
-extension Template {
-    var language: CodeLanguage {
-        get {
-            .detectLanguageFrom(url: URL(filePath: outputFilePath))
-        }
     }
 }

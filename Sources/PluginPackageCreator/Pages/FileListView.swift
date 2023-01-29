@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import CodeEditTextView
 
 struct FileListView: View {
     @EnvironmentObject var model: RenderingModel
@@ -21,15 +20,10 @@ struct FileListView: View {
             }
             TableColumn("Title", value: \.name)
             TableColumn("Description", value: \.description)
-            TableColumn("Output Path") { template in
-                PopoverView {
-                    Text(model.renderOutputPath(template: template) ?? "Error in generating output path")
-                        .underline()
-                } popover: {
-                    CodeView(template: template)
-                }
-
-                
+            TableColumn("Output Path"){ template in
+                let text = model.renderOutputPath(template: template)
+                Text(text ?? "Error")
+                    .underline()
             }
             TableColumn("Downloaded") { template in
                 DownloadedIndicator(downloaded: downloaded, template: template)
