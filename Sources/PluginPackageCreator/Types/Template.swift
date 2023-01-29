@@ -26,6 +26,13 @@ struct Template: Identifiable, Codable, Equatable {
     var name: String
     var description: String
     var outputFilePath: String
+    /**
+     Indicates whether this file should be included in the generated file list.
+     */
+    var included: Bool = true
+    /**
+     Indicates whether the rendering engine should be used to render the output.
+     */
     var shouldRender: Bool {
         get {
             name.hasSuffix(".j2")

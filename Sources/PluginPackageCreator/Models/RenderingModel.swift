@@ -119,7 +119,7 @@ class RenderingModel: ObservableObject {
                 return
             }
 
-            for template in package.templates {
+            for template in package.templates.filter{ $0.included } {
                 downloadedTemplates.append(template)
                 let content = try await render(template: template)
                 guard let outputPath = renderOutputPath(template: template) else {
@@ -132,6 +132,12 @@ class RenderingModel: ObservableObject {
         } catch {
             isGenerating = false
             throw error
+        }
+    }
+    
+    func updateInclude(template: Template, value: Bool) {
+        if let index = package?.templates.firstIndex(of: template) {
+            package?.templates[index].included = value
         }
     }
     

@@ -16,6 +16,9 @@ struct FileListView: View {
     
     var body: some View {
         Table(templates) {
+            TableColumn("Includes") { template in
+                TemplateIncludeToggle(template: template)
+            }
             TableColumn("Title", value: \.name)
             TableColumn("Description", value: \.description)
             TableColumn("Output Path") { template in
