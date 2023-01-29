@@ -40,7 +40,7 @@ class RenderingModel: ObservableObject {
     func fetchPackageRepo() async {
         do {
             isLoading = true
-            let url = packageIndexURL.appending(path: "index.json")
+            let url = packageIndexURL
             let (data, _) =  try await URLSession.shared.data(from: url)
             let repos = try JSONDecoder().decode([PackageRepo].self, from: data)
             self.packageRepos = repos
@@ -64,7 +64,7 @@ class RenderingModel: ObservableObject {
         
         do {
             isLoading = true
-            let (data, _) =  try await URLSession.shared.data(from: packageIndexURL.appending(path: selectedRepo.path).appending(path: "index.json"))
+            let (data, _) =  try await URLSession.shared.data(from: packageIndexURL.appending(path: selectedRepo.path))
             let package = try JSONDecoder().decode(Package.self, from: data)
             if let schemaPath = package.schema {
                 let (schemaData, _) =  try await URLSession.shared.data(from: packageIndexURL.appending(path: selectedRepo.path).appending(path: schemaPath))
