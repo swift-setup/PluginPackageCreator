@@ -32,11 +32,16 @@ class System(enum.Enum):
             raise Exception("Unknown system")
 
 
-def get_all_files(pattern: str, in_folder: str = ".") -> List[str]:
-    files = glob.glob(path.join(in_folder, pattern), recursive=True)
-    # unique files
-    files = list(set(files))
-    return files
+def get_all_files(pattern: List[str], in_folder: str = ".") -> List[str]:
+    output: List[str] = []
+
+    for p in pattern:
+        files = glob.glob(path.join(in_folder, p), recursive=True)
+        # unique files
+        files = list(set(files))
+        print(files)
+        output.extend(files)
+    return output
 
 
 def compress(files: List[str]):
@@ -52,12 +57,13 @@ def compress(files: List[str]):
 if __name__ == '__main__':
     # get ext from args
     arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument("--pattern", type=str, required=True)
+    arg_parser.add_argument("--patterns", type=str, nargs="+", default=["*.dylib", "*.bundle"])
     arg_parser.add_argument("--folder", type=str, default=".")
 
     args = arg_parser.parse_args()
-    pattern = args.pattern
+    pattern = args.patterns
     in_folder = args.folder
+    print(pattern)
 
     # get all files with ext
     files = get_all_files(pattern=pattern, in_folder=in_folder)
