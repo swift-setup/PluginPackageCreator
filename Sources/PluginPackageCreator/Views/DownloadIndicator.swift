@@ -27,11 +27,11 @@ struct DownloadedIndicator: View {
 struct DownloadedIndicator_Previews: PreviewProvider {
     static var previews: some View {
         DownloadedIndicator(
-            downloaded: [Template(name: "a", description: "b", outputFilePath: "c")], template: Template(name: "a", description: "b", outputFilePath: "c")
+            downloaded: [Template(name: "a", description: "b", outputFilePath: "c", shouldInclude: nil)], template: Template(name: "a", description: "b", outputFilePath: "c", shouldInclude: nil)
         )
         
         DownloadedIndicator(
-            downloaded: [Template(name: "a", description: "b", outputFilePath: "c")], template: Template(name: "c", description: "b", outputFilePath: "c")
+            downloaded: [Template(name: "a", description: "b", outputFilePath: "c", shouldInclude: nil)], template: Template(name: "c", description: "b", outputFilePath: "c", shouldInclude: nil)
         )
     }
 }

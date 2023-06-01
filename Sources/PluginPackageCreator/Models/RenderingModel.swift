@@ -23,7 +23,7 @@ class RenderingModel: ObservableObject {
 
     var fileUtils: FileUtilsProtocol!
     var nsPanel: NSPanelUtilsProtocol!
-    let packageIndexURL = URL(string: "https://scripts.swiftup.net")!
+    let packageIndexURL = URL(string: "https://scripts-eta.vercel.app")!
     
 
     func setup(fileUtils: FileUtilsProtocol, nsPanel: NSPanelUtilsProtocol) {
