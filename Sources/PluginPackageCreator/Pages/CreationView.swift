@@ -12,6 +12,8 @@ import PluginInterface
 struct CreationView: View {
     let fileUtils: FileUtilsProtocol
     let nsPanelUtils: NSPanelUtilsProtocol
+    let store: StoreUtilsProtocol
+    let plugin: any PluginInterfaceProtocol
     
     @StateObject private var model = RenderingModel()
     @State var workspace: URL?
@@ -28,6 +30,10 @@ struct CreationView: View {
                 
                 Button("Refresh repos") {
                     Task {
+                        let url: String? = store.get(forKey: "repo", from: plugin)
+                        if let url = url {
+                            model.updatePackageURL(newURL: url)
+                        }
                         await model.fetchPackageRepo()
                     }
                 }
@@ -53,7 +59,7 @@ struct CreationView: View {
                     }
             }
             .onAppear {
-                model.setup(fileUtils: fileUtils, nsPanel: nsPanelUtils)
+                model.setup(fileUtils: fileUtils, nsPanel: nsPanelUtils, store: store, plugin: plugin)
             }
             
             HStack {
