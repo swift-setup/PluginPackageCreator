@@ -120,6 +120,7 @@ struct Template: Identifiable, Codable, Equatable {
 
     @MainActor
     func render(packageInfo: JSON, baseURL: URL) async throws -> String {
+        let environment = Environment()
         let (data, _) = try await URLSession.shared.data(from: baseURL.appending(path: "files").appending(path: name))
         guard let template = String(data: data, encoding: .utf8) else {
             throw TemplateErrors.invalidTemplateContent
