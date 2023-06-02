@@ -23,12 +23,23 @@ class RenderingModel: ObservableObject {
 
     var fileUtils: FileUtilsProtocol!
     var nsPanel: NSPanelUtilsProtocol!
-    let packageIndexURL = URL(string: "https://scripts-eta.vercel.app")!
+    private(set) var packageIndexURL: URL = URL(string: "https://scripts.swiftup.net")!
     
 
-    func setup(fileUtils: FileUtilsProtocol, nsPanel: NSPanelUtilsProtocol) {
+    func setup(fileUtils: FileUtilsProtocol, nsPanel: NSPanelUtilsProtocol, store: StoreUtilsProtocol, plugin: any PluginInterfaceProtocol) {
         self.fileUtils = fileUtils
         self.nsPanel = nsPanel
+        self.updatePackageURL(newURL: store.get(forKey: "repo", from: plugin) ?? "")
+    }
+    
+    func updatePackageURL(newURL: String) {
+        guard let newURL = URL(string: newURL) else {
+            nsPanel.alert(title: "Invalid package url", subtitle: newURL, okButtonText: nil, alertStyle: .critical)
+            return
+        }
+        
+        self.packageIndexURL = newURL
+        
     }
     
     @MainActor
