@@ -24,8 +24,8 @@ struct SettingsView: View {
     
     var body: some View {
         Form {
-            Section("Test Content") {
-                TextField("test example", text: $info)
+            Section("Index URL") {
+                TextField("Remote index url", text: $info)
                 Text("Remenber to refresh the repository!")
                     .foregroundColor(.red)
             }
