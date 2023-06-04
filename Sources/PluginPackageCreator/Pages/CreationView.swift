@@ -1,13 +1,13 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Qiwei Li on 1/26/23.
 //
 
 import Foundation
-import SwiftUI
 import PluginInterface
+import SwiftUI
 
 struct CreationView: View {
     let fileUtils: FileUtilsProtocol
@@ -21,13 +21,15 @@ struct CreationView: View {
     var body: some View {
         VStack {
             HStack {
-                Picker("Repos", selection: $model.selectedRepo) {
-                    Text("Pick a repo").tag(PackageRepo.emptyRepo)
-                    ForEach(model.packageRepos, id: \.title) { repo in
-                        Text(repo.title).tag(repo)
+                Text("Repo")
+                Spacer()
+                Menu(model.selectedRepo.title) {
+                    ForEach(model.packageRepos) { item in
+                        MenuItemView(item: item)
                     }
                 }
-                
+                .frame(maxWidth: 300)
+                Spacer()
                 Button("Refresh repos") {
                     Task {
                         let url: String? = store.get(forKey: "repo", from: plugin)
@@ -77,7 +79,6 @@ struct CreationView: View {
                 }
                 .disabled(workspace == nil || model.selectedRepo == .emptyRepo)
             }
-            
         }
         .environmentObject(model)
         .onChange(of: model.selectedRepo, perform: { newValue in
@@ -107,5 +108,4 @@ struct CreationView: View {
             nsPanelUtils.alert(title: "Cannot generate project", subtitle: error.localizedDescription, okButtonText: "OK", alertStyle: .critical)
         }
     }
-    
 }

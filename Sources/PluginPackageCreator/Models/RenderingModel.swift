@@ -13,7 +13,7 @@ import SwiftyJSON
 class RenderingModel: ObservableObject {
     @Published var packageInfo: JSON = [:]
     @Published var isGenerating = false
-    @Published var packageRepos: [PackageRepo] = []
+    @Published var packageRepos: [PackageGroup] = []
     @Published var selectedRepo: PackageRepo = .emptyRepo
     @Published var package: Package?
     @Published var schema: JSON?
@@ -53,7 +53,7 @@ class RenderingModel: ObservableObject {
             isLoading = true
             let url = packageIndexURL
             let (data, _) =  try await URLSession.shared.data(from: url)
-            let repos = try JSONDecoder().decode([PackageRepo].self, from: data)
+            let repos = try JSONDecoder().decode([PackageGroup].self, from: data)
             self.packageRepos = repos
             isLoading = false
         } catch {
@@ -130,7 +130,7 @@ class RenderingModel: ObservableObject {
                 return
             }
 
-            for template in package.templates.filter{ $0.included } {
+            for template in package.templates.filter({ $0.included }) {
                 downloadedTemplates.append(template)
                 let content = try await render(template: template)
                 guard let outputPath = renderOutputPath(template: template) else {
