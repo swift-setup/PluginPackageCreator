@@ -16,7 +16,6 @@ struct PopoverView<Content: View, Popover: View>: View {
     
     var body: some View {
         content
-            .padding()
             .popover(isPresented: $showPopup, content: {
                 popover
                     .padding()

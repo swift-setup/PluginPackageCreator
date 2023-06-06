@@ -10,7 +10,7 @@ import PluginInterface
 import SwiftUIJsonSchemaForm
 
 struct FormView: View {
-    @EnvironmentObject var model: RenderingModel
+    @EnvironmentObject var model: TemplateRenderingModel
     
     let workspace: URL?
     let nsPanelUtils: NSPanelUtilsProtocol
