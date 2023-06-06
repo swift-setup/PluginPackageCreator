@@ -9,12 +9,12 @@ import SwiftUI
 
 struct MenuItemView: View {
     let item: PackageGroup
-    @EnvironmentObject var model: RenderingModel
+    @EnvironmentObject var model: TemplateRenderingModel
 
     var body: some View {
         Menu(item.name) {
             if let children = item.children {
-                ForEach(children) { child in
+                ForEach(children, id: \.name) { child in
                     MenuItemView(item: child)
                 }
             }

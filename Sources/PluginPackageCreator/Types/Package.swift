@@ -7,8 +7,7 @@
 
 import Foundation
 
-struct PackageGroup: Codable, Hashable, Identifiable {
-    let id = UUID()
+struct PackageGroup: Codable, Hashable {
     var name: String
     var children: [PackageGroup]?
     var menus: [PackageRepo]?
@@ -34,4 +33,57 @@ struct Package: Codable {
     var description: String
     var templates: [Template]
     var schema: String?
+    var beforeScript: PackageScript?
+    var afterScript: PackageScript?
+
+    /**
+        *  Check if the script is finished
+     */
+    var isScriptFinished: Bool {
+        if let beforeScript = beforeScript {
+            if beforeScript.loading {
+                return false
+            }
+        }
+
+        if let afterScript = afterScript {
+            if afterScript.loading {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    var isScriptSuccess: Bool {
+        if let beforeScript = beforeScript {
+            if !beforeScript.success {
+                return false
+            }
+        }
+
+        if let afterScript = afterScript {
+            if !afterScript.success {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    var isScriptError: Bool {
+        if let beforeScript = beforeScript {
+            if beforeScript.error != nil {
+                return true
+            }
+        }
+
+        if let afterScript = afterScript {
+            if afterScript.error != nil {
+                return true
+            }
+        }
+
+        return false
+    }
 }

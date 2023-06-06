@@ -15,7 +15,8 @@ struct CreationView: View {
     let store: StoreUtilsProtocol
     let plugin: any PluginInterfaceProtocol
     
-    @StateObject private var model = RenderingModel()
+    @StateObject private var model = TemplateRenderingModel()
+    @StateObject private var scriptModel = ScriptRenderingModel()
     @State var workspace: URL?
     
     var body: some View {
@@ -24,7 +25,7 @@ struct CreationView: View {
                 Text("Repo")
                 Spacer()
                 Menu(model.selectedRepo.title) {
-                    ForEach(model.packageRepos) { item in
+                    ForEach(model.packageRepos, id: \.name) { item in
                         MenuItemView(item: item)
                     }
                 }
@@ -55,6 +56,12 @@ struct CreationView: View {
                     .tabItem {
                         Text("General info")
                     }
+                
+                ScriptsView(package: model.package)
+                    .tabItem {
+                        Text("Scripts")
+                    }
+                
                 FileListView(templates: model.package?.templates ?? [], downloaded: model.downloadedTemplates)
                     .tabItem {
                         Text("Files to be generated")
@@ -62,6 +69,7 @@ struct CreationView: View {
             }
             .onAppear {
                 model.setup(fileUtils: fileUtils, nsPanel: nsPanelUtils, store: store, plugin: plugin)
+                scriptModel.setup(fileUtils: fileUtils, nsPanel: nsPanelUtils, store: store)
             }
             
             HStack {
@@ -101,9 +109,28 @@ struct CreationView: View {
         }
     }
     
+    @MainActor
     func render() async {
         do {
-            try await model.render()
+            try await model.render(before: { package, packageInfo in
+                do {
+                    model.package?.beforeScript?.resetStatus()
+                    let output = try await scriptModel.run(withPackage: package, of: .before, using: packageInfo)
+                    model.package?.beforeScript?.setSuccess(output: output)
+                } catch {
+                    model.package?.beforeScript?.setError(error: error)
+                    throw error
+                }
+            }, after: { package, packageInfo in
+                do {
+                    model.package?.beforeScript?.resetStatus()
+                    let output = try await scriptModel.run(withPackage: package, of: .after, using: packageInfo)
+                    model.package?.afterScript?.setSuccess(output: output)
+                } catch {
+                    model.package?.afterScript?.setError(error: error)
+                    throw error
+                }
+            })
         } catch {
             nsPanelUtils.alert(title: "Cannot generate project", subtitle: error.localizedDescription, okButtonText: "OK", alertStyle: .critical)
         }

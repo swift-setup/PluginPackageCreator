@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftyJSON
 
 struct TemplateIncludeToggle: View {
-    @EnvironmentObject var model: RenderingModel
+    @EnvironmentObject var model: TemplateRenderingModel
     
     let template: Template
     @State var isOn: Bool

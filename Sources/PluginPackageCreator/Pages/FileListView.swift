@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct FileListView: View {
-    @EnvironmentObject var model: RenderingModel
+    @EnvironmentObject var model: TemplateRenderingModel
     
     let templates: [Template]
     let downloaded: [Template]
