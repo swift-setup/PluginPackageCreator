@@ -15,6 +15,7 @@ class TemplateRenderingModel: ObservableObject {
     @Published var isGenerating = false
     @Published var packageRepos: [PackageGroup] = []
     @Published var selectedRepo: PackageRepo = .emptyRepo
+    @Published var includedTemplate: [Template] = []
     @Published var package: Package?
     @Published var schema: JSON?
     
@@ -81,8 +82,10 @@ class TemplateRenderingModel: ObservableObject {
             } else {
                 schema = nil
             }
-            
             self.package = package
+            includedTemplate = package.templates.filter { t in
+                t.shouldInclude?.shouldInclude(values: [:]) ?? true
+            }
             isLoading = false
         } catch {
             isLoading = false
@@ -145,9 +148,18 @@ class TemplateRenderingModel: ObservableObject {
         }
     }
     
+    @MainActor
     func updateInclude(template: Template, value: Bool) {
         if let index = package?.templates.firstIndex(of: template) {
             package?.templates[index].included = value
+        }
+        
+        if !value {
+            print("updateInclude, remove, ", template.name)
+            includedTemplate.removeAll { $0.id == template.id }
+
+        } else {
+            includedTemplate.append(template)
         }
     }
     

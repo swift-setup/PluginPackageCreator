@@ -8,6 +8,7 @@
 import Foundation
 import PluginInterface
 import SwiftUI
+import SwiftyJSON
 
 struct CreationView: View {
     let fileUtils: FileUtilsProtocol
@@ -62,7 +63,7 @@ struct CreationView: View {
                         Text("Scripts")
                     }
                 
-                FileListView(templates: model.package?.templates ?? [], downloaded: model.downloadedTemplates)
+                FileListView()
                     .tabItem {
                         Text("Files to be generated")
                     }
@@ -108,7 +109,7 @@ struct CreationView: View {
             nsPanelUtils.alert(title: "Cannot open workspace", subtitle: error.localizedDescription, okButtonText: "OK", alertStyle: .critical)
         }
     }
-    
+
     @MainActor
     func render() async {
         do {
