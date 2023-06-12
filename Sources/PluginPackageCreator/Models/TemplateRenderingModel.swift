@@ -83,7 +83,9 @@ class TemplateRenderingModel: ObservableObject {
                 schema = nil
             }
             self.package = package
-            includedTemplate = package.templates
+            includedTemplate = package.templates.filter { t in
+                t.shouldInclude?.shouldInclude(values: [:]) ?? true
+            }
             isLoading = false
         } catch {
             isLoading = false

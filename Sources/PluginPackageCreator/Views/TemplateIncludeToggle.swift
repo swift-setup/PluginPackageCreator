@@ -17,11 +17,10 @@ struct TemplateIncludeToggle: View {
 
     var body: some View {
         Toggle("", isOn: self.$isOn)
-//            .onChange(of: self.isOn) { value in
-//                self.model.updateInclude(template: self.template, value: value)
-//            }
+            .onChange(of: self.isOn) { value in
+                self.model.updateInclude(template: self.template, value: value)
+            }
             .onAppear {
-                print(includedTemplates.map { $0.name })
                 if let _ = includedTemplates.first(where: { $0.id == template.id }) {
                     isOn = true
                 } else {

@@ -43,13 +43,27 @@ struct FormView: View {
                     Spacer()
                     
                     if let schema = model.schema {
-                        SwiftUIJsonSchemaForm.FormView(jsonSchema: schema, values: $data)
-                            .onChange(of: data) { value in
-                                print(value)
-                            }
+                        SwiftUIJsonSchemaForm.FormView(jsonSchema: schema, values: model.packageInfo) { values in
+                            updateIncludes(values: values)
+                        }
                     }
                 }
                 .padding()
+                .onAppear {
+                    print("Init", model.packageInfo.description)
+                }
+            }
+        }
+    }
+    
+    @MainActor
+    func updateIncludes(values: JSON) {
+        print("UpdateIncludes", model.packageInfo, values)
+        model.packageInfo = values
+        print(model.packageInfo.description)
+        model.package?.templates.forEach { template in
+            if let value = template.shouldInclude?.shouldInclude(values: values) {
+                model.updateInclude(template: template, value: value)
             }
         }
     }
